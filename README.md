@@ -91,7 +91,7 @@ ansible-playbook cocalc-local.yml
     - role: belonesox.cocalc-on-fedora-ansible
 ```
 
-Grab git version of cocacl.
+Grab git version of cocalc.
 Use ``launch.json`` like that
 
 ```json
