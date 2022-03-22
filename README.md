@@ -2,6 +2,7 @@ belonesox.cocalc-on-fedora-ansible
 =========
 * Installs and configures a [Cocalc Hub](https://cocalc.com/)
    * install [Cocalc](https://github.com/sagemathinc/cocalc) on Fedora (FC34/FC35).
+* Makes admin user by default.
 
 Requirements
 ------------
@@ -64,6 +65,7 @@ Why?
   * Actually, I spent several weeks trying to fix regular crashed of «cocalc-docker» on podman, and failed.
 * You want to share your postgresql server (with centralized backups) with other services.
 * You want to fast experimenting cycle with updating packages, patching configs/code inplace without rebuilding/reinstalling large docker blob, or remapping container filesystem.
+  * for example python 3.10 with lot of candies vs. python 3.6 on docker.
 * You like old-school configuration management with Vagrant/Ansible.
 
 

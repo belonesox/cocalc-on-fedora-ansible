@@ -1,4 +1,4 @@
-- shell: umask 022
+- shell: umask 0002
 
 - package:
     name:
@@ -10,6 +10,7 @@
       - screen
       - readline-devel
       - aspell
+      - aspell-ru
       - poppler-utils
       - net-tools
       - wget
@@ -110,6 +111,7 @@
       - texlive-dvipng
       - texlive-ucs
       - texlive-cyrillic
+      - texlive-synctex
       - texlive-lh
       - texlive-scontents
   async: 1000
@@ -148,8 +150,10 @@
     - its
 
 # Install R Jupyter Kernel package into R itself (so R kernel works), and some other packages e.g., rmarkdown which requires reticulate to use Python.
-- shell: echo "install.packages(c('repr', 'IRdisplay', 'evaluate', 'crayon', 'pbdZMQ', 'httr', 'devtools', 'uuid', 'digest', 'IRkernel', 'formatR', 'curl'), repos='https://cloud.r-project.org')" | sage -R --no-save
+#- shell: echo "install.packages(c('repr', 'IRdisplay', 'evaluate', 'crayon', 'pbdZMQ', 'httr', 'devtools', 'uuid', 'digest', 'IRkernel', 'formatR', 'curl'), repos='https://cloud.r-project.org')" | sage -R --no-save
 - shell: echo "install.packages(c('repr', 'IRdisplay', 'evaluate', 'crayon', 'pbdZMQ', 'httr', 'devtools', 'uuid', 'digest', 'IRkernel', 'rmarkdown', 'reticulate', 'formatR'), repos='https://cloud.r-project.org')" | R --no-save
+  args:
+    creates: "/tmp/r-packages-installed"
 
 - dnf: name=https://github.com/cdr/code-server/releases/download/v3.12.0/code-server-3.12.0-amd64.rpm disable_gpg_check=yes
 
@@ -173,7 +177,10 @@
       - dimcli
       - galois
 
-- command: "{{item}}"
+- name: gogo
+  debug: msg="gogo"
+
+- shell: "umask 0002; {{item}}"
   loop:
     - npm install -g npm node-gyp
     - python3 -m pip install --upgrade ./smc_pyutil/
@@ -264,9 +271,6 @@
 
 - service: name=cocalc-hub enabled=yes state=started
 
-- name: gogo
-  debug: msg="gogo"
-
 
 - template: src=nginx.conf dest=/etc/nginx/conf.d/calc.conf
 - service: name=nginx enabled=yes state=started
@@ -276,6 +280,7 @@
 - shell: chmod -R u+rwX,go+rX,go-w /usr/local/lib
 - shell: chmod -R u+rwX,go+rX,go-w /usr/local/lib64
 - shell: chmod -R u+rwX,go+rX,go-w /usr/local/share
+- shell: "chmod -R u+rwX,go+rX,go-w {{basedir}}/{{state}}"
 
 - template: src=init-db.sql dest=/tmp/init-db.sql
 
