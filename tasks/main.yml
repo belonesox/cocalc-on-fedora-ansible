@@ -47,6 +47,7 @@
       - sage
       - sagemath
       - sagemath-sagetex
+      - environment-modules
       - python3-yaml   
       - python3-matplotlib  
       - python3-ipywidgets 
@@ -155,7 +156,10 @@
   args:
     creates: "/tmp/r-packages-installed"
 
-- dnf: name=https://github.com/cdr/code-server/releases/download/v3.12.0/code-server-3.12.0-amd64.rpm disable_gpg_check=yes
+- dnf: name=https://github.com/coder/code-server/releases/download/v4.2.0/code-server-4.2.0-amd64.rpm disable_gpg_check=yes
+#Alternative → curl -fsSL https://code-server.dev/install.sh | sh
+# + 
+
 
 - git: 
     repo: "{{cocalc_git_url}}"
@@ -211,6 +215,9 @@
     dest: /
     force: no
 
+# - file:  path=/opt/distrs state=directory mode="u=rwx,g=rwx,o=rx"
+
+- shell: chmod a+rx /opt/distrs -R
 - shell: rpm --import https://packages.microsoft.com/keys/microsoft.asc
 
 
@@ -282,6 +289,12 @@
 - shell: chmod -R u+rwX,go+rX,go-w /usr/local/share
 - shell: "chmod -R u+rwX,go+rX,go-w {{basedir}}/{{state}}"
 
+
+- firewalld: zone=public port={{item}}/tcp permanent=true state=enabled
+  with_items:
+  - 10000
+  - 8888
+
 - template: src=init-db.sql dest=/tmp/init-db.sql
 
 - postgresql_query:
@@ -291,10 +304,12 @@
     path_to_script: /tmp/init-db.sql
 
 
-- firewalld: zone=public port={{item}}/tcp permanent=true state=enabled
-  with_items:
-  - 10000
-  - 8888
+- lineinfile:
+    path: /usr/lib64/sagemath/local/bin/sage-env
+    state: present
+    regexp: ^export THREEJS_DIR
+    line: 'export THREEJS_DIR=/usr/share/sagemath/threejs/threejs-sage-r122'
+
 
 
 - name: Catching Async TexLive install
